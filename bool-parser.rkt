@@ -25,6 +25,7 @@
    ((:+ alphabetic) (token-VAR lexeme))
    ((eof) (token-EOF))))
 
+
 (define bool-parser
   (parser
    (start bidirect-expr)
@@ -72,6 +73,23 @@
            $2))
     )))
 
+(define (nnf expr)
+  (match expr
+    [`(¬ ,exp) (match exp
+                 [`(Var ⊥) `(Var ⊤)]
+                 [`(Var ⊤) `(Var ⊥)]
+                 [`(Var ,var) `(¬ (Var ,var))]
+                 [`(∧ ,left ,right) `(∨ ,(nnf left) ,(nnf right))]
+                 [`(∨ ,left ,right) `(∧ (¬ ,(nnf left)) (¬ ,(nnf right)))]
+                 [`(→ ,left ,right) `(∧ ,(nnf left) ,(nnf right))]
+                 [`(↔ ,left ,right) (nnf `(¬ (∧ (→ ,left ,right) (→ ,right ,left))))]
+                 [`(¬ ,e) e])]
+    [`(,op ,left ,right) `(,op ,(nnf left) ,(nnf right))]
+    [else expr]))
+
+(define (nnf-fix expr)
+  (walk-fix nnf expr))
+
 (define (eliminate-xor expr)
   (match expr
     [`(⊕ ,a ,b)
@@ -102,10 +120,28 @@
     [`(→ ,a ,b)
      ; =>
      (list `(∨ (¬ ,a) ,b))]
-    [`(∨ ,a ,b)
+    [`(Var ,x)
      ; => 
      (list expr)]
-    [`(Var ,x)
+    [`(∨ (∧ ,a ,b) (∧ ,c ,d))
+     ; =>
+     (list `(∨ ,a ,b) `(∨ ,a ,c) `(∨ ,b ,d) `(∨ ,c ,d))]
+    [`(∨ (∧ ,a ,b) ,c)
+     ;=>
+     (list `(∨ ,a ,c) `(∨ ,b ,c))]
+    [`(∨ ,a (∧ ,b ,c))
+     ;=>
+     (list `(∨ ,a ,b) `(∨ ,a ,c))]
+    [`(∨ (→ ,a ,b) (→ ,c ,d))
+     ; =>
+     (list `(∨ (∨ (¬ ,a) ,b) (∨ (¬ ,c) ,d)))]
+    [`(∨ (→ ,a ,b) ,c)
+     ; =>
+     (list `(∨ (∨ (¬ ,a) ,b) ,c))]
+    [`(∨ ,a (→ ,b ,c))
+     ; =>
+     (list `(∨ ,a (∨ (¬ ,b) ,c)))]
+    [`(∨ ,a ,b)
      ; => 
      (list expr)]))
 
@@ -143,9 +179,76 @@
       (begin
         (walk-fix proc (proc expr) expr))))
 
+(define (cnf l-expr)
+  (walk-fix (λ (x)
+              (map nnf-fix
+                   (list->cnf x)))
+            l-expr))
+
 (define (lex-this lexer input) (lambda () (lexer input)))
 
-(let ((input (open-input-string "(a -> c) iff 1")))
-  
-  
-  (display (list->cnf (list->cnf (tseitin-trans (eliminate-bicond (eliminate-xor (bool-parser (lex-this bool-lexer input)))))))))
+(define var-count 1)
+
+(define (add-var v h)
+  (if (hash-has-key? h v)
+      void
+      (begin
+        (hash-set! h v var-count)
+        (set! var-count (+ var-count 1)))))
+
+(define (add-vars formula h)
+  (match formula
+    [`(¬ (Var ,x)) (begin
+                     (add-var `(Var ,x) h)
+                     h)]
+    [`(Var ,x) (begin
+                 (add-var `(Var ,x) h)
+                 h)]
+    [`(,op ,a ,b) (begin
+                    (add-vars a h) (add-vars b h))]
+    [`(,op ,a) (add-vars a h)]))
+
+(define (gather-args! cnf-list (h (make-hash)))
+  (cond
+    [(empty? cnf-list) h]
+    [else (begin
+            (add-vars (first cnf-list) h)
+            (gather-args! (rest cnf-list) h))]))
+
+(define (to-dimacs-lower expr h)
+   (match expr
+       [`(¬ (Var ,x)) 
+        (string-append 
+         " -"
+         (number->string 
+          (hash-ref! h `(Var ,x) "-1")))]
+     [`(Var ,x)
+      (string-append 
+       " "
+       (number->string
+        (hash-ref! h `(Var ,x) "-1")))]
+     [`(∨ ,a ,b) (string-append
+                  (to-dimacs-lower a h)
+                  (to-dimacs-lower b h))]))
+
+(define (to-dimacs expr h)
+  (string-append (to-dimacs-lower expr h) " 0"))
+         
+
+(let ((input (open-input-string "p or  p")))
+  (let [(result
+        (cnf
+          (tseitin-trans 
+           (nnf
+            (eliminate-bicond 
+             (eliminate-xor 
+              (bool-parser 
+               (lex-this bool-lexer input))))))))]
+    (let [(args(gather-args! result))]
+      (display args)
+      (newline)
+      (display result)
+      (newline)
+      (map (λ (ex)
+             (display (string-append (to-dimacs ex args) "\n"))) result))))
+    
