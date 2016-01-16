@@ -219,6 +219,12 @@
             (add-vars (first cnf-list) h)
             (gather-args! (rest cnf-list) h))]))
 
+(define (dimacs-header expr h)
+  (string-append "p cnf "
+                 (number->string (apply max (hash-values h)))
+                 " "
+                 (number->string (length expr))))
+
 (define (to-dimacs-lower expr h)
    (match expr
        [`(¬ (Var ,x)) 
@@ -235,11 +241,18 @@
                   (to-dimacs-lower a h)
                   (to-dimacs-lower b h))]))
 
-(define (to-dimacs expr h)
+(define (to-dimacs-line expr h)
   (string-append (to-dimacs-lower expr h) " 0"))
-         
 
-(let ((input (open-input-string "p and not p")))
+(define (to-dimacs expr h)
+  (string-append
+   (dimacs-header expr h) "\n"
+   (apply string-append
+          (map (λ (ex)
+                 (string-append (to-dimacs-line ex h) "\n")) expr))))
+        
+
+(let ((input (open-input-file "test.expr")))
   (let [(result
         (cnf
          (tseitin-trans
@@ -248,10 +261,5 @@
             (bool-parser 
              (lex-this bool-lexer input)))))))]
     (let [(args(gather-args! result))]
-      (display args)
-      (newline)
-      (display result)
-      (newline)
-      (map (λ (ex)
-             (display (string-append (to-dimacs ex args) "\n"))) result))))
+      (display (to-dimacs result args)))))
     
