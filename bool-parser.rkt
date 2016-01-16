@@ -181,8 +181,6 @@
   (if (equal? old expr)
       expr
       (begin
-        (display expr)
-        (newline)
         (walk-fix proc (proc expr) expr))))
 
 (define (cnf l-expr)
@@ -241,7 +239,7 @@
   (string-append (to-dimacs-lower expr h) " 0"))
          
 
-(let ((input (open-input-string "not(((a and b) or c) iff ((a or c) and (b or c)))")))
+(let ((input (open-input-string "p and not p")))
   (let [(result
         (cnf
          (tseitin-trans
