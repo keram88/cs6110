@@ -79,10 +79,10 @@
                  [`(Var ⊥) `(Var ⊤)]
                  [`(Var ⊤) `(Var ⊥)]
                  [`(Var ,var) `(¬ (Var ,var))]
-                 [`(∧ ,left ,right) `(∨ ,(nnf left) ,(nnf right))]
+                 [`(∧ ,left ,right) `(∨ (¬ ,(nnf left)) (¬ ,(nnf right)))]
                  [`(∨ ,left ,right) `(∧ (¬ ,(nnf left)) (¬ ,(nnf right)))]
-                 [`(→ ,left ,right) `(∧ ,(nnf left) ,(nnf right))]
-                 [`(↔ ,left ,right) (nnf `(¬ (∧ (→ ,left ,right) (→ ,right ,left))))]
+                 [`(→ ,left ,right) `(∧ ,(nnf left) ,(nnf `(¬ ,right)))]
+                 [`(↔ ,left ,right) `(¬ (∧ (→ ,left ,right) (→ ,right ,left)))]
                  [`(¬ ,e) e])]
     [`(,op ,left ,right) `(,op ,(nnf left) ,(nnf right))]
     [else expr]))
@@ -113,19 +113,22 @@
     [`(,op ,a) `(,op ,(eliminate-bicond a))]))
 
 (define (to-cnf expr) ; Returns a list of clauses
-  (match expr
+    (match expr
     [`(↔ ,a ,b)
      ; =>
      (list `(→ ,a ,b) `(→ ,b ,a))]
     [`(→ ,a ,b)
      ; =>
      (list `(∨ (¬ ,a) ,b))]
+    [`(¬ (Var ,x))
+     ; => 
+     (list expr)]
     [`(Var ,x)
      ; => 
      (list expr)]
     [`(∨ (∧ ,a ,b) (∧ ,c ,d))
      ; =>
-     (list `(∨ ,a ,b) `(∨ ,a ,c) `(∨ ,b ,d) `(∨ ,c ,d))]
+     (list `(∨ ,a ,c) `(∨ ,a ,d) `(∨ ,b ,c) `(∨ ,b ,d))]
     [`(∨ (∧ ,a ,b) ,c)
      ;=>
      (list `(∨ ,a ,c) `(∨ ,b ,c))]
@@ -159,6 +162,7 @@
   (let [(sub-name (genvar))]
     (match expr
       [`(Var ,x) (list expr empty)]
+      [`(¬ (Var ,x)) (list expr empty)]
       [`(,op ,a ,b)
        ; => 
        (let [(res-a (tseitin-real a))
@@ -177,12 +181,14 @@
   (if (equal? old expr)
       expr
       (begin
+        (display expr)
+        (newline)
         (walk-fix proc (proc expr) expr))))
 
 (define (cnf l-expr)
   (walk-fix (λ (x)
-              (map nnf-fix
-                   (list->cnf x)))
+              (list->cnf
+                   (map nnf-fix x)))
             l-expr))
 
 (define (lex-this lexer input) (lambda () (lexer input)))
@@ -235,15 +241,14 @@
   (string-append (to-dimacs-lower expr h) " 0"))
          
 
-(let ((input (open-input-string "p or  p")))
+(let ((input (open-input-string "not(((a and b) or c) iff ((a or c) and (b or c)))")))
   (let [(result
         (cnf
-          (tseitin-trans 
-           (nnf
-            (eliminate-bicond 
-             (eliminate-xor 
-              (bool-parser 
-               (lex-this bool-lexer input))))))))]
+         (tseitin-trans
+          (eliminate-bicond 
+           (eliminate-xor 
+            (bool-parser 
+             (lex-this bool-lexer input)))))))]
     (let [(args(gather-args! result))]
       (display args)
       (newline)
