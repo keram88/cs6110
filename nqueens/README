@@ -1,10 +1,10 @@
 ### Setup ###
-Build cryptominisat
-    ./setup.sh
-Get the library path in the environment
-    source environment
 Build
     make
+Setup environment
+    source environment
 Run nqueens
     ./nqueens #
+To get all solutions
+    ./nqueens # -1
     
