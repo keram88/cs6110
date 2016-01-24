@@ -1,35 +1,35 @@
 #include "nqueens_tools.hh"
 
-void add_col(ulong i, ulong j, ulong n, Lit phant, Solver& s) {
+void add_col(ulong i, ulong j, ulong n, Lit phant, SATSolver& s) {
   Lits result(2);
   for(ulong k = 0; k < n; ++k) {
     if(k == i)
       continue;
     result[0] = phant;
     result[1] = queen(k, j, n, false);
-    s.addClause_(result);
+    s.add_clause(result);
   }
 }
 
-void add_diagr(ulong i, ulong j, ulong n, Lit phant, Solver& s) {
+void add_diagr(ulong i, ulong j, ulong n, Lit phant, SATSolver& s) {
   Lits result(2);
   for(ulong k = 1; k < std::min(n-i,n-j); ++k) {
     result[0] = phant;
     result[1] = queen(i+k, j+k, n, false);
-    s.addClause_(result);
+    s.add_clause(result);
   }
 }
 
-void add_diagl(ulong i, ulong j, ulong n, Lit phant, Solver& s) {
+void add_diagl(ulong i, ulong j, ulong n, Lit phant, SATSolver& s) {
   Lits result(2);
   for(ulong k = 1; k < std::min(j+1,n-i); ++k) {
     result[0] = phant;
     result[1] = queen(i+k, j-k, n, false);
-    s.addClause_(result);
+    s.add_clause(result);
   }
 }
 
-void print_solution(const vec<lbool>& m, ulong n) {
+void print_solution(const vector<lbool>& m, ulong n) {
   for(ulong i = 0; i < n; ++i) {
     for(ulong j = 0; j < n; ++j) {
       std::cout << (m[queen_int(i,j,n)] == l_True ? 'X' : '.');
@@ -39,7 +39,7 @@ void print_solution(const vec<lbool>& m, ulong n) {
   std::cout << std::endl;
 }
 
-void check_solution(const vec<lbool>& m, ulong n) {
+void check_solution(const vector<lbool>& m, ulong n) {
   ulong queen_count = 0;
   for(ulong r = 0; r < n; ++r) {
     for(ulong c = 0; c < n; ++c) {

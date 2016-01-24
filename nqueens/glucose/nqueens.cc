@@ -7,12 +7,29 @@ int main(const int argc, const char** args)
 {
   ulong n = 0;
   long solutions = 1;
+  ulong threads = 1;
 
   switch(argc) {
   case 1:
     std::cout << "Please give a number" <<std::endl;
     return 0;
     break;
+  case 4: {
+    // Number of threads
+    std::string threadc_s(args[3]);
+    try {
+      threads = stol(threadc_s);
+      if(threads == 0 || threads > 64) {
+	std::cout << "Wrong number of threads" << std::endl;
+	return 0;
+      }
+    }
+    catch(...) {
+      std::cout << "Could not convert threads to a number" << std::endl;
+      return 0;
+    }
+    
+  }
   case 3: {
     // A negative third argument means all solutions
     std::string solc_s(args[2]);
@@ -73,8 +90,8 @@ int main(const int argc, const char** args)
     }
     solver.addClause_(phantoms);
   }
-
-  long found = 0;
+  solver.toDimacs("test.cnf");
+  /*  long found = 0;
   while((found < solutions || solutions < 0) && solver.solve()) {
     found++;
     const auto& model = solver.model;
@@ -89,9 +106,7 @@ int main(const int argc, const char** args)
       }
     solver.addClause_(new_cons);
   };
-  
   if(found == 0)
-    std::cout << "No solution" << std::endl;
-  std::cout << found << std::endl;
+  std::cout << "No solution" << std::endl;*/
   return 0;
 }

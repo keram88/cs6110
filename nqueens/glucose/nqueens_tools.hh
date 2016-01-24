@@ -1,14 +1,15 @@
 #ifndef NQ
 #define NQ
 
-#include <core/Solver.h>
+//#include <cryptominisat4/cryptominisat.h>
+#include "glucose-syrup/core/Solver.h"
 #include <vector>
 #include <string>
 #include <iostream>
 #include <cassert>
 
 using std::vector;
-using namespace Minisat;
+using namespace Glucose;
 
 typedef vec<Lit> Lits;
 
