@@ -6,5 +6,5 @@ tar xf minisat-2.2.0.tar.gz
 cd minisat
 export MROOT=`pwd`
 cd core
-make
+make rs
 

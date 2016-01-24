@@ -1,1 +1,0 @@
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`/cryptominisat-4.5.3/build/lib
