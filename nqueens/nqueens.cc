@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "nqueens_tools.hh"
+#include "tune.h"
 
 int main(const int argc, const char** args)
 {
@@ -50,13 +51,17 @@ int main(const int argc, const char** args)
     return 0;
     break;
   }
+
+  bool polarity = false;
+  if(n >= 1 and n <= 251)
+    polarity = tune_param[n];
   
   Solver solver;
   Lits clause;
 
   // We need 2*n*n variables
   for(ulong i = 0; i < 2*n*n; ++i)
-    solver.newVar();
+    solver.newVar(polarity);
 
   // Generate the constraints
   for(ulong i = 0; i < n; ++i) {
@@ -73,7 +78,6 @@ int main(const int argc, const char** args)
     }
     solver.addClause_(phantoms);
   }
-
   long found = 0;
   while((found < solutions || solutions < 0) && solver.solve()) {
     found++;
