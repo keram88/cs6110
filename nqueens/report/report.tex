@@ -25,8 +25,6 @@
 \usepackage[english]{babel} % English language/hyphenation
 \usepackage{amsmath,amsfonts,amsthm} % Math packages
 
-\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
-
 \usepackage{sectsty} % Allows customizing section commands
 \allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
 
@@ -35,10 +33,10 @@
 \fancyhead{} % No page header - if you want one, create it in the same way as the footers below
 \fancyfoot[L]{} % Empty left footer
 \fancyfoot[C]{} % Empty center footer
-\fancyfoot[R]{\thepage} % Page numbering for right footer
+%\fancyfoot[R]{\thepage} % Page numbering for right footer
 \renewcommand{\headrulewidth}{0pt} % Remove header underlines
 \renewcommand{\footrulewidth}{0pt} % Remove footer underlines
-\setlength{\headheight}{13.6pt} % Customize the height of the header
+\setlength{\headheight}{1pt} % Customize the height of the header
 
 \numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
 \numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
@@ -50,14 +48,14 @@
 %	TITLE SECTION
 %----------------------------------------------------------------------------------------
 
-\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+%\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
 
 \title{	
 \normalfont \normalsize 
-\textsc{CS 6110} \\ [25pt] % Your university, school and/or department name(s)
-\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
-\huge N Queens \\ % The assignment title
-\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+\textsc{CS 6110} \\ % Your university, school and/or department name(s)
+%\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+%\huge N Queens \\ % The assignment title
+%\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
 }
 
 \author{Mark S. Baranowski} % Your name
@@ -71,34 +69,28 @@
 %----------------------------------------------------------------------------------------
 %	PROBLEM 1
 %----------------------------------------------------------------------------------------
+The derivation is given below. Other than the implicit encoding of one queen per row, and the diagonals only banning queens on the lower rows, the derivation is mechanical.
 
-\section{Encoding}
-
-\begin{align}
-q_{i,j} & & \text{(Denotes whether a queen is on the square $(i,j)$)}\\
+\begin{align*}
 C_{r,c} & \equiv \bigwedge_{i=1, i \ne r}^n \neg q_{i,c} & \text{(Column constraint)}\\
 DR_{r,c} & \equiv \bigwedge_{i=1}^{\min(n-r, n-c)}\neg q_{r+i, c+i} & \text{(Right diagonal constraint)}\\
 DL_{r,c} & \equiv \bigwedge_{i=1}^{\min(n-r, c)}\neg q_{r+i, c-i} & \text{(Left diagonal constraint)}\\
 R_{r} &\equiv \bigvee_{c=1}^n q_{r,c} \wedge C_{r,c}\wedge DR_{r,c} \wedge DL_{r,c} &\text{(Row constraint)}\\
 NQ &\equiv \bigwedge_{r=1}^nR_r & \text{(N Queens constraint)}
-\end{align}
-At the top level, $NQ$ is already in CNF, however $R_r$ is not in CNF. Introduce new `phantom` variables $p_{r,c}$ where
-
-\begin{align*}
-p_{r,c}\leftrightarrow q_{r,c} \wedge C_{r,c}\wedge DR_{r,c} \wedge DL_{r,c}. \\
-\end{align*} 
-Rewrite equation (1.5) as
-\begin{align*}
-R_r \equiv \bigvee_{c=1}^n p_{r,c}.
 \end{align*}
+At the top level, $NQ$ is already in CNF, however $R_r$ is not in CNF. Introduce new ``phantom`` variables $p_{r,c}$ where
+$p_{r,c}\leftrightarrow q_{r,c} \wedge C_{r,c}\wedge DR_{r,c} \wedge DL_{r,c}.$
+Rewrite $R_r$ as $R_r \equiv \bigvee_{c=1}^n p_{r,c}.$
 Two new constraints are introduced
-\begin{align}
+\begin{align*}
 &p_{r,c} \rightarrow q_{r,c} \wedge C_{r,c} \wedge DR_{r,c} \wedge DL_{r,c}\\
 \equiv&\neg p_{r,c} \vee (q_{r,c} \wedge C_{r,c} \wedge DR_{r,c} \wedge DL_{r,c})\\
 &q_{r,c} \wedge C_{r,c} \wedge DR_{r,c} \wedge DL_{r,c}\rightarrow p_{r,c}\\
 \equiv&\neg q_{r,c} \vee \neg C_{r,c} \vee \neg DR_{r,c} \vee \neg DL_{r,c} \vee p_{r,c}.
-\end{align}
-From here, apply the distributive rule to (1.8) and the formula is in CNF.
+\end{align*}
+From here, apply the distributive rule and the formula is in CNF.
+
+The tool can be built with {\tt make} and then run with {\tt ./nqueens \#}. To get all solutions, run {\tt ./nqueens \# -1}.
 \end{document}
 
 
