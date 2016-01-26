@@ -18,6 +18,11 @@ void add_diagr(ulong i, ulong j, ulong n, Lit phant, Solver& s) {
     result[1] = queen(i+k, j+k, n, false);
     s.addClause_(result);
   }
+  for(ulong k = 1; k < std::min(i,j); ++k) {
+    result[0] = phant;
+    result[1] = queen(i-k, j-k, n, false);
+    s.addClause_(result);
+  }
 }
 
 void add_diagl(ulong i, ulong j, ulong n, Lit phant, Solver& s) {
@@ -25,6 +30,11 @@ void add_diagl(ulong i, ulong j, ulong n, Lit phant, Solver& s) {
   for(ulong k = 1; k < std::min(j+1,n-i); ++k) {
     result[0] = phant;
     result[1] = queen(i+k, j-k, n, false);
+    s.addClause_(result);
+  }
+  for(ulong k = 1; k < std::min(i,n-j); ++k) {
+    result[0] = phant;
+    result[1] = queen(i-k, j+k, n, false);
     s.addClause_(result);
   }
 }

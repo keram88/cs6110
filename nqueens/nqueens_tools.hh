@@ -11,11 +11,11 @@ using std::vector;
 using namespace Minisat;
 
 typedef vec<Lit> Lits;
-
+typedef unsigned long ulong;
 inline
 ulong phantom_int(ulong i, ulong j, ulong n) {
   return (((i)*(n) + (j))*2 + 1);
-    }
+}
 
 inline
 Lit phantom(ulong i, ulong j, ulong n, bool truth) {

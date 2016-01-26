@@ -47,14 +47,14 @@ int main(const int argc, const char** args)
     break;
   }
   default:
-    std::cout << "Too many args";
+    std::cout << "Too many args" << std::endl;
     return 0;
     break;
   }
 
   bool polarity = false;
   if(n >= 1 and n <= 251)
-    polarity = tune_param[n];
+      polarity = tune_param[n];
   
   Solver solver;
   Lits clause;
@@ -78,6 +78,7 @@ int main(const int argc, const char** args)
     }
     solver.addClause_(phantoms);
   }
+  solver.simplify();
   long found = 0;
   while((found < solutions || solutions < 0) && solver.solve()) {
     found++;
