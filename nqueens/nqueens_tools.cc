@@ -1,3 +1,4 @@
+// Mark S. Baranowski - u0485301 - CS 6100 - HW1
 #include "nqueens_tools.hh"
 
 void add_col(ulong i, ulong j, ulong n, Lit phant, Solver& s) {
