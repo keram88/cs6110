@@ -73,9 +73,14 @@ The derivation is given below. Other than the implicit encoding of one queen per
 
 \begin{align*}
 C_{r,c} & \equiv \bigwedge_{i=1, i \ne r}^n \neg q_{i,c} & \text{(Column constraint)}\\
-DR_{r,c} & \equiv \bigwedge_{i=1}^{\min(n-r, n-c)}\neg q_{r+i, c+i} & \text{(Right diagonal constraint)}\\
-DL_{r,c} & \equiv \bigwedge_{i=1}^{\min(n-r, c)}\neg q_{r+i, c-i} & \text{(Left diagonal constraint)}\\
-R_{r} &\equiv \bigvee_{c=1}^n q_{r,c} \wedge C_{r,c}\wedge DR_{r,c} \wedge DL_{r,c} &\text{(Row constraint)}\\
+DR_{r,c} & \equiv \left(\bigwedge_{i=1}^{\min(n-r, n-c)}\neg q_{r+i, c+i}\right) \wedge
+\left( \bigwedge_{i=1}^{\min(r-1,c-1)}\neg q_{r-i, c-i} \right)
+ & \text{(Right diagonal constraint)}\\
+DL_{r,c} & \equiv \left(\bigwedge_{i=1}^{\min(n-r, c)}\neg q_{r+i, c-i}\right)\wedge
+\left(\bigwedge_{i=1}^{\min(i-1,n-j)}\neg q_{r-i,c+i}\right) 
+& \text{(Left diagonal constraint)}\\
+R_{r} &\equiv \bigvee_{c=1}^n q_{r,c} \wedge C_{r,c}\wedge DR_{r,c} \wedge DL_{r,c} 
+&\text{(Row constraint)}\\
 NQ &\equiv \bigwedge_{r=1}^nR_r & \text{(N Queens constraint)}
 \end{align*}
 At the top level, $NQ$ is already in CNF, however $R_r$ is not in CNF. Introduce new ``phantom`` variables $p_{r,c}$ where
