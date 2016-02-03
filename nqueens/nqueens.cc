@@ -98,5 +98,7 @@ int main(const int argc, const char** args)
   
   if(found == 0)
     std::cout << "No solution" << std::endl;
+  else if(solutions != 1)
+    std::cout << found << std::endl;
   return 0;
 }
