@@ -4,8 +4,6 @@ method LinearSearch(a:array<int>, l:int, u:int, e:int) returns (r:bool)
 	requires l < a.Length;
 	requires u < a.Length;
 
-	requires a.Length == 1;
-
   ensures r <==> exists k:: l <= k <= u && a[k] == e;
 {
   var i := l;
