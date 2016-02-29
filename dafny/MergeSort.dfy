@@ -77,21 +77,21 @@ method merge(a1:array<int>, l:int, m:int, u:int) returns (a:array<int>)
 	  invariant forall i:: forall j:: m+1 <= i <= j <= u ==> a[i] <= a[j];
 
 		invariant k > 0 ==> forall ip:: forall jp:: forall kp:: (j <= jp <= u && 
-		                                                         i <= ip <= m && 
-																														 0 <= kp < k) ==> 
-																														buf[kp] <= a[ip] && buf[kp] <= a[jp];
+		  i <= ip <= m && 
+			0 <= kp < k) ==> 
+			buf[kp] <= a[ip] && buf[kp] <= a[jp];
 
-		invariant i > m ==> forall ip:: forall jp:: (0 <= ip < k && 
-		                                             j <= jp <= u) ==> buf[ip] <= a[jp];
-		invariant i <= m && j > u ==> forall ip:: forall jp:: (0 <= ip < k && 
-		                                                       i <= jp <= m) ==> buf[ip] <= a[jp];
-	  //invariant i <= m && j <= u && a[i] <= a[j] ==> forall ip:: forall jp:: (0 <= ip < k &&
-		//                                                                        j <= jp <= u) ==>
-	  //                                                                       buf[ip] <= a[jp];
+			invariant i > m ==> forall ip:: forall jp:: (0 <= ip < k && 
+		    j <= jp <= u) ==> buf[ip] <= a[jp];
+				invariant i <= m && j > u ==> forall ip:: forall jp:: (0 <= ip < k && 
+		      i <= jp <= m) ==> buf[ip] <= a[jp];
+					//invariant i <= m && j <= u && a[i] <= a[j] ==> forall ip:: forall jp:: (0 <= ip < k &&
+					//                                                                        j <= jp <= u) ==>
+					//                                                                       buf[ip] <= a[jp];
 
-		//invariant forall ip:: forall jp:: i <= ip <= m && 0 <= jp < k < u-l+1 ==> buf[jp] <= a[ip];
-		//invariant forall ip:: forall jp:: j <= ip <= u && 0 <= jp < k < u-l+1 ==> buf[jp] <= a[ip];
-		invariant forall i:: forall j:: 0 <= i <= j < k ==> buf[i] <= buf[j];
+					//invariant forall ip:: forall jp:: i <= ip <= m && 0 <= jp < k < u-l+1 ==> buf[jp] <= a[ip];
+					//invariant forall ip:: forall jp:: j <= ip <= u && 0 <= jp < k < u-l+1 ==> buf[jp] <= a[ip];
+					invariant forall i:: forall j:: 0 <= i <= j < k ==> buf[i] <= buf[j];
   {
     if (i > m)
     {
@@ -138,14 +138,14 @@ method merge(a1:array<int>, l:int, m:int, u:int) returns (a:array<int>)
 	  invariant forall i:: forall j:: 0 <= i <= j < k ==> buf[i] <= buf[j];
 
 	  invariant (forall i:: forall j:: 0 <= i <= j < u - l + 1 ==> buf[i] <= buf[j]) ==> 
-	           forall i:: forall j:: 0 <= i <= j < k ==> buf[i] <= buf[j];
+	    forall i:: forall j:: 0 <= i <= j < k ==> buf[i] <= buf[j];
 
 
-    invariant (forall i:: forall j: int:: 0 <= i <= j < k ==> buf[i] == a[l + i] && buf[j] == a[l+j] && buf[i] <= buf[j]);
-	  invariant (forall i:: forall j:: (0 <= i <= j < k ==>
-	           ((buf[i] == a[l + i] && buf[j] == a[l+j] && 
-						  buf[i] <= buf[j]) ==> a[l+i] <= a[l+j])));
-	  invariant forall i:: forall j:: 0 <= i <= j < k ==> a[l+i] <= a[l + j];
+			invariant (forall i:: forall j: int:: 0 <= i <= j < k ==> buf[i] == a[l + i] && buf[j] == a[l+j] && buf[i] <= buf[j]);
+			invariant (forall i:: forall j:: (0 <= i <= j < k ==>
+	      ((buf[i] == a[l + i] && buf[j] == a[l+j] && 
+				buf[i] <= buf[j]) ==> a[l+i] <= a[l+j])));
+				invariant forall i:: forall j:: 0 <= i <= j < k ==> a[l+i] <= a[l + j];
   {
     a[l + k] := buf[k];
 		assert forall i:: l <= i <= l+k ==> a[i] == buf[i-l];
