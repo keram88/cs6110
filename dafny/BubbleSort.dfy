@@ -22,8 +22,8 @@ method BubbleSort(a:array<int>)
         a[j] := a[j + 1];
         a[j + 1] := t;
       }
-			j := j + 1;
+      j := j + 1;
     }
-		i := i - 1;
+    i := i - 1;
   }
 }
